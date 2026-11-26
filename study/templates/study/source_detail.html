@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,6 +54,76 @@
             color: #77758a;
         }
 
+        .progress-section {
+            background: white;
+            border: 1px solid #ebe8f3;
+            border-radius: 14px;
+            padding: 20px 22px;
+            margin-bottom: 25px;
+        }
+
+        .progress-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .progress-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .filter-link {
+            display: inline-block;
+            padding: 8px 13px;
+            border: 1px solid #e5e1f0;
+            border-radius: 8px;
+            color: #625d75;
+            background: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .filter-link:hover {
+            border-color: #8068e8;
+            color: #7056dc;
+        }
+
+        .filter-link.active {
+            background: #7056dc;
+            border-color: #7056dc;
+            color: white;
+        }
+
+        .active-filter {
+            margin-top: 15px;
+            color: #68647d;
+            font-size: 14px;
+        }
+
+        .source-text-details {
+            background: #f6f4fc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .source-text-details summary {
+            color: #7056dc;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .source-original-text {
+            color: #55536a;
+            line-height: 1.7;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            margin-top: 15px;
+        }
+
         .study-card {
             background: white;
             border: 1px solid #ebe8f3;
@@ -65,6 +136,25 @@
             color: #7056dc;
             font-size: 13px;
             font-weight: 700;
+        }
+
+        .card-status {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 11px;
+            border-radius: 20px;
+            margin-top: 10px;
+        }
+
+        .status-verified {
+            background: #e8f5ed;
+            color: #198754;
+        }
+
+        .status-pending {
+            background: #fff4df;
+            color: #9a6700;
         }
 
         .card-question {
@@ -118,6 +208,77 @@
             overflow-wrap: anywhere;
         }
 
+        .card-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 18px;
+            margin-top: 16px;
+        }
+
+        .edit-link {
+            color: #7056dc;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .edit-link:hover {
+            color: #5c43c5;
+            text-decoration: underline;
+        }
+
+        .delete-link {
+            color: #dc3545;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .delete-link:hover {
+            color: #b02a37;
+            text-decoration: underline;
+        }
+
+        .review-form {
+            display: inline;
+            margin: 0;
+        }
+
+        .review-button {
+            border: none;
+            border-radius: 7px;
+            padding: 8px 13px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .verify-button {
+            background: #198754;
+            color: white;
+        }
+
+        .verify-button:hover {
+            background: #146c43;
+        }
+
+        .reset-button {
+            background: #fff4df;
+            color: #946200;
+        }
+
+        .reset-button:hover {
+            background: #ffe8b8;
+        }
+
+        .empty-cards {
+            background: white;
+            border: 1px solid #ebe8f3;
+            border-radius: 14px;
+            padding: 25px;
+            color: #68647d;
+            line-height: 1.6;
+        }
+
         .back-link {
             color: #7056dc;
             font-weight: 600;
@@ -139,6 +300,14 @@
 
             .page-title {
                 font-size: 25px;
+            }
+
+            .progress-details {
+                flex-direction: column;
+            }
+
+            .filter-link {
+                width: 100%;
             }
         }
     </style>
@@ -174,16 +343,76 @@
         </span>
 
         <span class="badge bg-light text-dark">
-            {{ cards|length }} cards
+            {{ total_count }} cards
         </span>
+
+        <details class="source-text-details">
+            <summary>Бастапқы мәтінді көрсету</summary>
+
+            <div class="source-original-text">
+                {{ source.text|linebreaksbr }}
+            </div>
+        </details>
 
     </div>
 
+    <section class="progress-section">
+
+        <h2 class="progress-title">
+            Карточкаларды тексеру прогресі
+        </h2>
+
+        <div class="progress-details">
+
+            <a
+                href="{% url 'source_detail' pk=source.pk %}"
+                class="filter-link {% if status == 'all' %}active{% endif %}"
+                {% if status == 'all' %}aria-current="page"{% endif %}
+            >
+                Барлығы ({{ total_count }})
+            </a>
+
+            <a
+                href="{% url 'source_detail' pk=source.pk %}?status=pending"
+                class="filter-link {% if status == 'pending' %}active{% endif %}"
+                {% if status == 'pending' %}aria-current="page"{% endif %}
+            >
+                Тексеру керек ({{ pending_count }})
+            </a>
+
+            <a
+                href="{% url 'source_detail' pk=source.pk %}?status=verified"
+                class="filter-link {% if status == 'verified' %}active{% endif %}"
+                {% if status == 'verified' %}aria-current="page"{% endif %}
+            >
+                Тексерілген ({{ verified_count }})
+            </a>
+
+        </div>
+
+        <div class="active-filter">
+            {% if status == 'pending' %}
+                Белсенді сүзгі: Тексеру керек
+            {% elif status == 'verified' %}
+                Белсенді сүзгі: Тексерілген
+            {% else %}
+                Белсенді сүзгі: Барлығы
+            {% endif %}
+        </div>
+
+    </section>
+
     <section>
 
-        <h2 class="h4 fw-bold mb-4">
+        <h2 class="h4 fw-bold mb-3">
             Your study cards
         </h2>
+
+        <p class="text-secondary mb-4">
+            Әр карточканың сұрағын, жауабын және дәйексөзін
+            бастапқы оқу мәтінімен салыстырып тексеріңіз.
+            ИИ бұл тексеруді автоматты түрде орындамайды.
+        </p>
 
         {% for card in cards %}
 
@@ -192,6 +421,16 @@
                 <div class="card-number">
                     CARD {{ card.position }}
                 </div>
+
+                {% if card.is_verified %}
+                    <span class="card-status status-verified">
+                        Тексерілді
+                    </span>
+                {% else %}
+                    <span class="card-status status-pending">
+                        Тексеру керек
+                    </span>
+                {% endif %}
 
                 <h3 class="card-question">
                     {{ card.question }}
@@ -214,12 +453,91 @@
 
                 </details>
 
+                <div class="card-actions">
+
+                    <a
+                        href="{% url 'card_edit' pk=card.pk %}"
+                        class="edit-link"
+                    >
+                        Өңдеу
+                    </a>
+
+                    <a
+                        href="{% url 'card_delete' pk=card.pk %}"
+                        class="delete-link"
+                    >
+                        Өшіру
+                    </a>
+
+                    <form
+                        method="POST"
+                        action="{% url 'card_review' pk=card.pk %}"
+                        class="review-form"
+                    >
+                        {% csrf_token %}
+
+                        {% if card.is_verified %}
+                            <button
+                                type="submit"
+                                name="action"
+                                value="reset"
+                                class="review-button reset-button"
+                            >
+                                Тексеруге қайтару
+                            </button>
+                        {% else %}
+                            <button
+                                type="submit"
+                                name="action"
+                                value="verify"
+                                class="review-button verify-button"
+                            >
+                                Карточканы тексердім
+                            </button>
+                        {% endif %}
+                    </form>
+
+                </div>
+
             </article>
 
         {% empty %}
 
-            <div class="alert alert-info">
-                No study cards are available for this material.
+            <div class="empty-cards">
+
+                {% if total_count == 0 %}
+
+                    <strong>Бұл конспектте карточкалар жоқ.</strong>
+
+                    <p class="mb-0 mt-2">
+                        Карточкалар әлі жасалмаған немесе барлығы өшірілген.
+                        Конспектің өзі сақталған.
+                        Бастапқы оқу мәтінін жоғарыдағы
+                        «Бастапқы мәтінді көрсету» бөлімінен қарай аласыз.
+                    </p>
+
+                {% else %}
+
+                    {% if status == 'pending' %}
+                        <strong>Тексеруді күтіп тұрған карточкалар жоқ.</strong>
+                    {% elif status == 'verified' %}
+                        <strong>Тексерілген карточкалар әлі жоқ.</strong>
+                    {% endif %}
+
+                    <p class="mb-0 mt-2">
+                        Басқа сүзгідегі карточкаларды көру үшін
+                        барлық карточканы көрсетіңіз.
+                    </p>
+
+                    <a
+                        href="{% url 'source_detail' pk=source.pk %}"
+                        class="back-link d-inline-block mt-3"
+                    >
+                        ← Барлығын көрсету
+                    </a>
+
+                {% endif %}
+
             </div>
 
         {% endfor %}
